@@ -1,0 +1,26 @@
+{
+	admin off
+	email {$ACME_EMAIL}
+}
+
+{$CADDY_SITE} {
+	{$CADDY_TLS_DIRECTIVE}
+	header {
+		-Server
+		Strict-Transport-Security "max-age=31536000"
+	}
+	@internal path /actuator /actuator/* /v3/api-docs /v3/api-docs/* /swagger-ui* /swagger-ui.html
+	respond @internal 404
+	request_body {
+		max_size 64KB
+	}
+	encode zstd gzip
+	reverse_proxy backend:8080 {
+		header_up -Forwarded
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Port {http.request.port}
+		health_uri /actuator/health/readiness
+		health_interval 10s
+		health_timeout 3s
+	}
+}
