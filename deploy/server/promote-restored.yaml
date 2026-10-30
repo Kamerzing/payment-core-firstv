@@ -1,0 +1,6 @@
+# Stop backend, postgres and restore-postgres first. Never mount one PGDATA twice.
+# Set PAYMENT_DB_NAME=payment_restore in .env before using this overlay permanently.
+services:
+  postgres:
+    volumes:
+      - restore-data:/var/lib/postgresql
